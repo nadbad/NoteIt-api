@@ -1,36 +1,48 @@
 import {
+  Body,
+  ClassSerializerInterceptor,
   Controller,
   Get,
   Param,
-  Post,
-  Body,
+  ParseIntPipe,
   Put,
-  Delete,
+  Query,
+  Request,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { UserService } from 'models/users/user.service';
-import { ApiTags, ApiResponse } from '@nestjs/swagger';
+import { ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { UsersService } from './user.service';
 
-import { User as UserModel } from '@prisma/client';
+import { JwtAuthGuard } from 'auth/jwt-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
+import { UpdatePasswordDto } from './dto/users.dto';
+import { RenderUser } from './RenderUser';
 
-import { CreateUserDto } from './dto/CreateUser.dto';
+@ApiTags('user')
+@Controller('user')
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
 
-@ApiTags('Users')
-@Controller()
-export class UserController {
-  constructor(private readonly userService: UserService) {}
-
-  @Get('users')
-  async findAll(): Promise<UserModel[]> {
-    return this.userService.users({});
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('me')
+  public async me(@Request() req) {
+    return new RenderUser(req.user);
   }
-
-  @Get('user/:id')
-  async findUser(@Param('id') id: string): Promise<UserModel> {
-    return this.userService.user({ id: Number(id) });
-  }
-
-  @Post('user')
-  async signupUser(@Body() createUserDto: CreateUserDto): Promise<UserModel> {
-    return this.userService.createUser(createUserDto);
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Put('update/password')
+  public async updatePassword(
+    @Request() req,
+    @Body()
+    updatePasswordDto: UpdatePasswordDto,
+  ) {
+    await this.usersService.updatePassword(updatePasswordDto, req.user.id);
+    return {
+      message: 'password_update_success',
+    };
   }
 }

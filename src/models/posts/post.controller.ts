@@ -11,7 +11,7 @@ import { PostService } from 'models/posts/post.service';
 import { Post as PostModel } from '@prisma/client';
 import { ApiTags } from '@nestjs/swagger';
 
-import { CreatePostDto } from './dto/CreatePost.dto';
+import { CreatePostDto } from './dto/posts.dto';
 
 @ApiTags('Posts')
 @Controller()
