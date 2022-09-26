@@ -11,6 +11,8 @@ import { PostService } from 'models/posts/post.service';
 import { Post as PostModel } from '@prisma/client';
 import { ApiTags } from '@nestjs/swagger';
 
+import { CreatePostDto } from './dto/CreatePost.dto';
+
 @ApiTags('Posts')
 @Controller()
 export class PostsController {
@@ -47,10 +49,8 @@ export class PostsController {
   }
 
   @Post('post')
-  async createDraft(
-    @Body() postData: { title: string; content?: string; authorEmail: string },
-  ): Promise<PostModel> {
-    const { title, content, authorEmail } = postData;
+  async createDraft(@Body() createPostDto: CreatePostDto): Promise<PostModel> {
+    const { title, content, authorEmail } = createPostDto;
     return this.postService.createPost({
       title,
       content,

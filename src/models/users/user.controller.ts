@@ -24,6 +24,11 @@ export class UserController {
     return this.userService.users({});
   }
 
+  @Get('user/:id')
+  async findUser(@Param('id') id: string): Promise<UserModel> {
+    return this.userService.user({ id: Number(id) });
+  }
+
   @Post('user')
   async signupUser(@Body() createUserDto: CreateUserDto): Promise<UserModel> {
     return this.userService.createUser(createUserDto);
