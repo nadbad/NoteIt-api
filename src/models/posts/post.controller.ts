@@ -6,11 +6,14 @@ import {
   Body,
   Put,
   Delete,
+  ClassSerializerInterceptor,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PostService } from 'models/posts/post.service';
 import { Post as PostModel } from '@prisma/client';
-import { ApiTags } from '@nestjs/swagger';
-
+import { ApiTags, ApiSecurity } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { CreatePostDto } from './dto/posts.dto';
 
 @ApiTags('Posts')
@@ -18,11 +21,17 @@ import { CreatePostDto } from './dto/posts.dto';
 export class PostsController {
   constructor(private readonly postService: PostService) {}
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get('post/:id')
   async getPostById(@Param('id') id: string): Promise<PostModel> {
     return this.postService.post({ id: Number(id) });
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get('feed')
   async getPublishedPosts(): Promise<PostModel[]> {
     return this.postService.posts({
@@ -30,6 +39,9 @@ export class PostsController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get('filtered-posts/:searchString')
   async getFilteredPosts(
     @Param('searchString') searchString: string,
@@ -48,6 +60,9 @@ export class PostsController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
   @Post('post')
   async createDraft(@Body() createPostDto: CreatePostDto): Promise<PostModel> {
     const { title, content, authorEmail } = createPostDto;
@@ -60,6 +75,9 @@ export class PostsController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
   @Put('publish/:id')
   async publishPost(@Param('id') id: string): Promise<PostModel> {
     return this.postService.updatePost({
@@ -68,6 +86,9 @@ export class PostsController {
     });
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiSecurity('access-key')
+  @UseInterceptors(ClassSerializerInterceptor)
   @Delete('post/:id')
   async deletePost(@Param('id') id: string): Promise<PostModel> {
     return this.postService.deletePost({ id: Number(id) });

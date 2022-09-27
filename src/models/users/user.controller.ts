@@ -14,7 +14,7 @@ import {
 import { ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './user.service';
 
-import { JwtAuthGuard } from 'auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'auth/guards/jwt-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdatePasswordDto } from './dto/users.dto';
 import { RenderUser } from './RenderUser';
@@ -31,6 +31,7 @@ export class UsersController {
   public async me(@Request() req) {
     return new RenderUser(req.user);
   }
+
   @UseGuards(JwtAuthGuard)
   @ApiSecurity('access-key')
   @UseInterceptors(ClassSerializerInterceptor)

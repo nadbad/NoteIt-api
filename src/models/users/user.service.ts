@@ -7,6 +7,7 @@ import {
 import { compare, hash } from 'bcrypt';
 import { PrismaService } from 'models/prisma/prisma.service';
 import { User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 interface FormatLogin extends Partial<User> {
   email: string;
@@ -34,9 +35,16 @@ export class UsersService {
       data: { password: await hash(payload.new_password, 10) },
     });
   }
+
+  async findOne(where: Prisma.UserWhereUniqueInput): Promise<User> {
+    return this.prisma.user.findUnique({ where });
+  }
+
   //use by auth module to register user in database
   async create(data: CreateUserDto): Promise<User> {
     data.password = await hash(data.password, 10);
+    data.email = data.email.toLowerCase();
+
     const userInDb = await this.prisma.user.findFirst({
       where: { email: data.email },
     });
@@ -46,6 +54,7 @@ export class UsersService {
 
     return await this.prisma.user.create({ data });
   }
+
   //use by auth module to login user
   async findByLogin({ email, password }: LoginUserDto): Promise<FormatLogin> {
     const user = await this.prisma.user.findFirst({
